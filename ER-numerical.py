@@ -47,23 +47,20 @@ def calc_gOUT(avg_k,m):
     ## avg_k 是平均的度
     ## m 是渗流指数
 
-    start_time = time.time()
-    comb = math.comb
     pk = gen_possion_distribution(avg_k,k_max)
-    A,x,y2 = calc_XYA(avg_k,pk,m)
-    P_GOUT = calc_PINF(y2,pk)
+    A,x,y = calc_XYA(avg_k,pk,m)
+    P_GOUT = calc_PINF(y,pk)
     return A, P_GOUT
 
 def test_induced():
     for mm in range(1,7):
-        for average_k in np.arange(1, 10, 0.2):
+        for average_k in np.arange(0, 10.00001, 0.1):
             average_k = round(average_k,4)
             index_f = str(mm)+str('_')+str(average_k)+str('.txt')
-            out_file_2 = open('data/GOUT_'+index_f, 'w')
+            out_file_2 = open('data_n/GOUT_'+index_f, 'w')
             p_k = gen_possion_distribution(average_k, k_max)
-            A,x2,y2 = calc_XYA(average_k, p_k, mm)
-            P_GOUT = calc_PINF(y2,p_k)
-            print(x2,y2)
+            A,x,y = calc_XYA(average_k, p_k, mm)
+            P_GOUT = calc_PINF(y,p_k)
             if P_GOUT>0.999 and average_k>10.0:
                 print(P_GOUT)
                 out_file_2.write('%f\t%f\n' % (average_k, P_GOUT))
