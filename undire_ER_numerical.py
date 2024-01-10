@@ -5,7 +5,7 @@ import os
 
 Accuracy = 1e-12
 
-# Generate Poisson degree distribution
+# 泊松分布
 def gen_poisson_distribution(ave_k, k_max):
     p_k = {}
     p_k[0] = math.exp(-ave_k)
@@ -13,7 +13,7 @@ def gen_poisson_distribution(ave_k, k_max):
         p_k[kk] = p_k[kk - 1] * ave_k / kk
     return p_k
 
-# Define the recursive functions for the conditional probabilities
+# 计算公式
 def tilde_v(m, p_k, avg_k):
     return sum(k * p_k.get(k, 0) / avg_k for k in range(m + 1, len(p_k)))
 
@@ -44,11 +44,11 @@ def tilde_y_infinity(m, p_k, tilde_v, tilde_v_infinity, tilde_t_infinity, avg_k)
         ) for k in range(m + 1, len(p_k))
     )
 
-# Define a function to calculate P_infinity
+# 迭代
 def P_infinity(m, p_k, avg_k):
     tilde_v_val = tilde_y_val = tilde_v_infinity_val = tilde_t_infinity_val = tilde_a_infinity_val = tilde_y_infinity_val = 0.5
 
-    for _ in range(100):  #迭代次数
+    for _ in range(1000):  #迭代次数
         tilde_v_val_new = tilde_v(m, p_k, avg_k)
         tilde_y_val_new = tilde_y(m, p_k, tilde_v_val, avg_k)
         tilde_v_infinity_val_new = tilde_v_infinity(m, p_k, tilde_t_infinity_val, tilde_v_infinity_val, avg_k)
@@ -56,7 +56,6 @@ def P_infinity(m, p_k, avg_k):
         tilde_a_infinity_val_new = tilde_a_infinity(m, p_k, tilde_y_val, tilde_y_infinity_val, tilde_a_infinity_val, avg_k)
         tilde_y_infinity_val_new = tilde_y_infinity(m, p_k, tilde_v_val, tilde_v_infinity_val, tilde_t_infinity_val, avg_k)
 
-        # Check for convergence
         if all(abs(new_val - old_val) < Accuracy for new_val, old_val in
                [(tilde_v_val_new, tilde_v_val), (tilde_y_val_new, tilde_y_val),
                 (tilde_v_infinity_val_new, tilde_v_infinity_val), (tilde_t_infinity_val_new, tilde_t_infinity_val),
@@ -68,7 +67,6 @@ def P_infinity(m, p_k, avg_k):
             tilde_a_infinity_val_new, tilde_y_infinity_val_new
         )
 
-        # Calculate P_infinity using the final values of the conditional probabilities
     P_inf = sum(p_k.get(k, 0) * (1 - (1 - tilde_y_val) ** k - (1 - tilde_y_infinity_val - tilde_a_infinity_val) ** k + (
                 1 - tilde_y_val - tilde_a_infinity_val) ** k) for k in range(0, m + 1))
     P_inf += sum(p_k.get(k, 0) * (
@@ -78,9 +76,9 @@ def P_infinity(m, p_k, avg_k):
     return P_inf
 
 def run_calculations_and_save():
-    k_max = 200  # 最大度数，您可以根据需要调整
+    k_max = 200  # 最大度数
     output_folder = 'test'
-    os.makedirs(output_folder, exist_ok=True)  # 确保文件夹存在
+    os.makedirs(output_folder, exist_ok=True)  
 
     for average_k in np.arange(0, 10, 0.1):
         average_k = round(average_k, 4)
